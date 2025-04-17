@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>نموذج بلاغ أو تنبيه</title>
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 30px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 10px;
+    }
+    .shield {
+      width: 60px;
+      height: 60px;
+      background: gold;
+      color: black;
+      font-weight: bold;
+      font-size: 24px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+    }
+    .sub-title {
+      margin-top: -10px;
+      font-size: 16px;
+      color: #ffcc00;
+      font-weight: bold;
+    }
+    .form-container {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 25px 30px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      width: 100%;
+      max-width: 500px;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+      color: #ffcc00;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    textarea {
+      resize: vertical;
+    }
+    input[type="file"] {
+      background: #fff;
+    }
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      background-color: #ffcc00;
+      color: black;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background-color: #e6b800;
+    }
+    #status {
+      margin-top: 15px;
+      font-weight: bold;
+      text-align: center;
+    }
+    .fade-in {
+      opacity: 0;
+      animation: fadeIn 1s forwards;
+    }
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+    footer {
+      margin-top: 30px;
+      font-size: 14px;
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="shield">JN</div>
+    <h2>نموذج تقديم بلاغ أو تنبيه لسيرفر الديسكورد</h2>
+  </div>
+  <p class="sub-title">JN Security System</p>
+  <div class="form-container">
+    <form id="reportForm">
+      <label for="type">نوع الإرسال:</label>
+      <select id="type" required>
+        <option value="بلاغ">بلاغ</option>
+        <option value="تنبيه">تنبيه</option>
+      </select>
+      <label for="target">الجهة المستهدفة:</label>
+      <select id="target" required>
+        <option value="عضو">عضو</option>
+        <option value="إداري">إداري</option>
+        <option value="كلا الإداري والعضو">كلا الإداري والعضو</option>
+        <option value="عضو كلان">عضو كلان</option>
+      </select>
+      <label for="reporterName">اسم المرسل:</label>
+      <input type="text" id="reporterName" placeholder="اسمك (اختياري)">
+      <label for="reportedName">اسم المبلغ عليه / المنبه عليه:</label>
+      <input type="text" id="reportedName" required placeholder="اسم المبلغ عليه">
+      <label for="details">تفاصيل البلاغ أو التنبيه:</label>
+      <textarea id="details" rows="5" required placeholder="اكتب التفاصيل هنا..."></textarea>
+      <label for="media">رفع صورة أو فيديو (اختياري):</label>
+      <input type="file" id="media" accept="image/*,video/*">
+      <button type="submit">إرسال</button>
+    </form>
+    <p id="status"></p>
+  </div>
+  <footer>تمت برمجة هذا الموقع بواسطة Ali_Shams_313</footer>
+  <audio id="successSound" src="https://notificationsounds.com/storage/sounds/file-sounds-1150-pristine.mp3" preload="auto"></audio>
+  <script>
+    const form = document.getElementById('reportForm');
+    const statusText = document.getElementById('status');
+    const successSound = document.getElementById('successSound');
+    const button = form.querySelector('button');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const type = document.getElementById('type').value;
+      const target = document.getElementById('target').value;
+      const reporter = document.getElementById('reporterName').value || "مستخدم مجهول";
+      const reported = document.getElementById('reportedName').value;
+      const details = document.getElementById('details').value;
+      const mediaFile = document.getElementById('media').files[0];
+      const webhookURL = 'https://discord.com/api/webhooks/1362275677860007997/e1mK0yx7p-VWQifgX4mX-xKfWUCfSSNB2HWOToferWG1i75FhhPEYj5LMmsxg15eCrEi';
+      const formData = new FormData();
+      formData.append("content", `**نوع الإرسال:** ${type}\n**الجهة:** ${target}\n**المرسل:** ${reporter}\n**المبلغ عليه:** ${reported}\n**التفاصيل:**\n${details}`);
+      if (mediaFile) {
+        formData.append("file", mediaFile);
+      }
+      button.disabled = true;
+      const response = await fetch(webhookURL, { method: 'POST', body: formData });
+      if (response.ok) {
+        statusText.innerHTML = `✅ <strong>تم إرسال البلاغ/التنبيه بنجاح!</strong><br>شكرًا لك على تعاونك، سيتم التعامل مع الحالة قريبًا.`;
+        statusText.style.color = "#4caf50";
+        statusText.className = "fade-in";
+        form.reset();
+        successSound.play();
+      } else {
+        statusText.textContent = "حدث خطأ أثناء الإرسال.";
+        statusText.style.color = "#f44336";
+      }
+      setTimeout(() => { button.disabled = false; }, 5000);
+    });
+  </script>
+</body>
+</html>
